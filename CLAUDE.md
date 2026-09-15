@@ -103,6 +103,31 @@ un único archivo grande.
   si es más natural en el ecosistema React/Next.
 - Commits en español, en modo imperativo y acotados a un cambio lógico.
 
+## Flujo de ramas (Git)
+
+Este proyecto usa **solo dos ramas**. Nunca crear ninguna rama adicional por
+cuenta propia — si se necesita una rama de funcionalidad, el usuario debe
+pedirlo explícitamente, y en ese caso se crea a partir de `staging`.
+
+- **`main`** — rama de **producción**. Es lo que ven los usuarios finales
+  (la web publicada).
+- **`staging`** — rama de **desarrollo/pruebas**. Aquí se valida todo antes
+  de publicarlo. **Todos los commits se hacen aquí por defecto.**
+
+`staging` solo se mergea a `main` cuando el usuario indica explícitamente
+que algo está listo para publicar.
+
+### Cómo interpretar a qué rama se refiere el usuario
+
+| El usuario dice... | Se refiere a |
+|---|---|
+| "producción", "prod", "main", "online", "la web", "publicar", "subir a producción", o cualquier mención de "lo que van a ver los usuarios" | `main` |
+| "desarrollo", "development", "dev", "staging", "ambiente de prueba", "entorno de pruebas" | `staging` |
+
+Ante la duda entre ambas, por defecto se asume `staging` (es la rama de
+trabajo activo); solo se opera sobre `main` cuando el usuario indica
+explícitamente publicar/producción.
+
 ## Notas de la sección `AGENTS.md`
 
 El bloque al inicio de `AGENTS.md` (entre `<!-- BEGIN:nextjs-agent-rules -->`
