@@ -39,6 +39,9 @@ yarn-error.log*
 # claude code local session state (not project source)
 .claude/
 
+# datos reales/de prueba de cartera de clientes: nunca subir (repo público)
+docs/Analisis Antiguedad*
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
