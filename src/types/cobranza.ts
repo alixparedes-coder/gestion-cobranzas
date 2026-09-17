@@ -51,6 +51,10 @@ export interface Cliente {
   nombre: string;
   antiguedadClienteMeses: number | null;
   volumenNegocio: number | null;
+  correo?: string | null;
+  analistaAsignado?: string | null;
+  /** RF-12: permite deshabilitar el envío automático de correo para este cliente. */
+  envioAutomaticoHabilitado?: boolean;
 }
 
 /** Factura/saldo pendiente de un cliente (tabla `facturas`). Un cliente puede tener varias a la vez. */
@@ -60,6 +64,7 @@ export interface Factura {
   saldoPendiente: number;
   /** Fecha ISO (YYYY-MM-DD). */
   fechaVencimiento: string;
+  numeroFactura?: string | null;
 }
 
 /** Resultado de aplicar los tres criterios de segmentación del PRD (sección 7) a un cliente. */
@@ -82,3 +87,20 @@ export interface RecomendacionAccion {
   escenario: EscenarioCobranza | null;
   requiereAtencionManual: boolean;
 }
+
+/**
+ * Qué hacer con un cliente en una corrida de envío automático de correos
+ * (PRD sección 9). Separado de la ejecución (leer Supabase, enviar el
+ * correo) para poder probar la decisión sin tocar servicios externos.
+ */
+export type DecisionEnvio =
+  | { tipo: "sin_accion" }
+  | { tipo: "omitido_envio_deshabilitado"; escenario: EscenarioCobranza }
+  | { tipo: "omitido_sin_correo"; escenario: EscenarioCobranza }
+  | { tipo: "omitido_reciente"; escenario: EscenarioCobranza }
+  | {
+      tipo: "enviar";
+      escenario: EscenarioCobranza;
+      segmento: SegmentoCliente;
+      facturaMasAntigua: Factura | null;
+    };
