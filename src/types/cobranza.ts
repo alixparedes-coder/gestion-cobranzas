@@ -1,7 +1,10 @@
 /** Tipos de dominio para segmentación de morosidad y comunicaciones de cobranza (PRD secciones 7-9). */
 
 /** Nivel de riesgo de morosidad según días de atraso (PRD 7.1). */
-export type NivelRiesgo = "bajo" | "medio" | "alto" | "critico";
+export type NivelRiesgo = "sin_riesgo" | "bajo" | "medio" | "alto" | "critico";
+
+/** Nivel de monto adeudado (PRD 7.2). */
+export type NivelMonto = "bajo" | "medio" | "alto";
 
 /**
  * Escenario de cobranza al que corresponde una plantilla de correo.
@@ -39,4 +42,31 @@ export interface PlantillaCorreo {
   asunto: string;
   cuerpo: string;
   activa: boolean;
+}
+
+/** Cliente de la cartera (tabla `clientes` de Supabase). */
+export interface Cliente {
+  id: string;
+  codigoExterno: string;
+  nombre: string;
+  antiguedadClienteMeses: number | null;
+  volumenNegocio: number | null;
+}
+
+/** Factura/saldo pendiente de un cliente (tabla `facturas`). Un cliente puede tener varias a la vez. */
+export interface Factura {
+  id: string;
+  clienteId: string;
+  saldoPendiente: number;
+  /** Fecha ISO (YYYY-MM-DD). */
+  fechaVencimiento: string;
+}
+
+/** Resultado de aplicar los tres criterios de segmentación del PRD (sección 7) a un cliente. */
+export interface SegmentoCliente {
+  nivelRiesgo: NivelRiesgo;
+  nivelMonto: NivelMonto;
+  esAltoValor: boolean;
+  diasAtraso: number;
+  saldoPendienteTotal: number;
 }
