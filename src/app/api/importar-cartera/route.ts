@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { obtenerUsuarioAutenticado } from "@/lib/auth/obtenerUsuarioAutenticado";
 import { importarCartera } from "@/lib/importacion/importarCartera";
 import { parsearArchivoCartera } from "@/lib/importacion/parsearArchivoCartera";
 
@@ -9,6 +10,10 @@ import { parsearArchivoCartera } from "@/lib/importacion/parsearArchivoCartera";
  * devuelven los errores para corregir el archivo.
  */
 export async function POST(request: Request) {
+  if (!(await obtenerUsuarioAutenticado())) {
+    return NextResponse.json({ error: "No autenticado." }, { status: 401 });
+  }
+
   const formData = await request.formData();
   const archivo = formData.get("archivo");
 
