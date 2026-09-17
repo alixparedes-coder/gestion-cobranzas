@@ -47,6 +47,7 @@ npm run dev      # servidor de desarrollo en http://localhost:3000
 npm run build    # build de producción
 npm run start    # sirve el build de producción
 npm run lint      # ESLint
+npm test          # node --test (ver sección de Tests más abajo)
 ```
 
 `dev`/`build` usan `--webpack` en vez de Turbopack, y el proyecto usa
@@ -62,9 +63,17 @@ evitan el problema por completo. Si en el futuro se confirma que los
 binarios nativos se instalan bien en el entorno de destino (otra máquina,
 CI, etc.), se puede volver a Turbopack/Tailwind v4.
 
-No hay suite de tests todavía. Cuando se agregue lógica de negocio (motor de
-segmentación, motor de reglas de acciones), debe ir acompañada de tests —
-proponer el framework (p. ej. Vitest) en ese momento.
+**Tests:** `npm test` (test runner nativo de Node, `node --test`). Se
+consideró Vitest, pero su versión actual depende de Rolldown (binario
+nativo en Rust) que no instala en esta máquina — mismo problema que
+Turbopack/Tailwind v4 (ver arriba). El runner de Node no tiene esa
+dependencia, y desde Node 22+ ejecuta TypeScript directo (borrado de tipos
+en runtime), así que no hace falta ningún transpilador. Requiere
+`"type": "module"` en `package.json` y el loader en `scripts/` que resuelve
+el alias `@/*` de `tsconfig.json` al correr los tests (Node no lee ese alias
+por su cuenta). Toda lógica de negocio nueva (motor de segmentación, motor
+de reglas) debe ir acompañada de tests con este mismo runner — no reabrir
+la discusión de framework salvo que este deje de ser viable.
 
 ## Estructura del proyecto
 
