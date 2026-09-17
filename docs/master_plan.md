@@ -38,7 +38,7 @@ Mejorar la gestión de cobranzas mediante un sistema que segmente a los clientes
 
 - Clasificar automáticamente a los clientes en segmentos de riesgo de morosidad según reglas configurables.
 - Recomendar, para cada cliente o segmento, la acción de cobranza más apropiada (recordatorio preventivo o negociación de plan de pago).
-- Automatizar el envío de correos electrónicos de cobranza según el escenario del cliente, integrado con Outlook/Microsoft 365.
+- Automatizar el envío de correos electrónicos de cobranza según el escenario del cliente, integrado con Resend.
 - Proveer un dashboard con indicadores clave (KPIs) de cartera vencida, días de mora y tasa de recuperación.
 - Permitir la carga periódica (semanal o según ciclo definido) de datos de clientes y facturación desde archivos Excel/CSV.
 
@@ -51,7 +51,7 @@ Mejorar la gestión de cobranzas mediante un sistema que segmente a los clientes
 - Carga e importación de datos desde archivos Excel/CSV.
 - Motor de segmentación de morosidad basado en: días de atraso, monto adeudado, y antigüedad/valor del cliente.
 - Motor de recomendación de acciones para dos escenarios: recordatorio preventivo y negociación de plan de pago (incluye variantes como fraccionamiento o descuento por pago pronto dentro de la negociación).
-- Automatización de envío de correos electrónicos vía Outlook/Microsoft 365 según el escenario recomendado.
+- Automatización de envío de correos electrónicos vía Resend según el escenario recomendado.
 - Dashboard de seguimiento con KPIs de cartera vencida, días de mora y recuperación, con vista compartida para agentes y supervisores.
 - Registro histórico de gestiones realizadas por cliente.
 
@@ -146,13 +146,15 @@ El motor de recomendación debe ser configurable: los umbrales y el mapeo segmen
 
 ## 9. Automatización de comunicaciones (correo electrónico)
 
-- **Canal:** correo electrónico, integrado con **Outlook / Microsoft 365**.
+- **Canal:** correo electrónico, integrado con **Resend** (API de envío transaccional).
 - **Disparo:** el envío se genera automáticamente según el escenario/acción recomendada para cada cliente (por ejemplo, recordatorio preventivo al vencimiento, o propuesta de plan de pago al entrar en riesgo medio/alto).
 - **Contenido:** plantillas de correo diferenciadas por escenario (tono preventivo vs. tono de negociación), con variables dinámicas (nombre del cliente, monto adeudado, fecha de vencimiento, condiciones de plan de pago propuesto).
 - **Trazabilidad:** cada envío debe quedar registrado (fecha, destinatario, plantilla usada, resultado del envío) para su consulta en el dashboard y como parte del historial de gestiones del cliente.
 - **Configuración:** debe existir una forma de habilitar/deshabilitar el envío automático por cliente o por segmento, para permitir intervención manual cuando el agente lo considere necesario.
 
-**Nota técnica:** la integración con Outlook/Microsoft 365 puede implementarse vía Microsoft Graph API (recomendado para producción) o vía SMTP autenticado como alternativa más simple; la decisión final de implementación queda a criterio del equipo de desarrollo en Claude Code según el modelo de licenciamiento de Microsoft 365 de la empresa.
+**Nota técnica:** la integración se implementa vía la API HTTP de Resend (paquete oficial `resend` para Node.js), con un dominio propio de la empresa verificado en Resend para que los correos salgan desde una dirección corporativa y no desde un dominio de pruebas. Requiere una cuenta de Resend y su API key (`RESEND_API_KEY`).
+
+> **Decisión (23 sep 2026):** se reemplazó la integración inicialmente prevista con Outlook/Microsoft 365 (Graph API/SMTP) por Resend, para no depender del licenciamiento de Microsoft 365 de la empresa ni de la complejidad de la autenticación OAuth de Graph API.
 
 ---
 
@@ -175,11 +177,11 @@ El motor de recomendación debe ser configurable: los umbrales y el mapeo segmen
 
 El proyecto se considerará exitoso en la medida en que, tras su implementación, se observe una mejora sostenida en:
 
-- **Tasa de recuperación de cartera:** porcentaje de la deuda morosa efectivamente recuperada en un período determinado.
+- **Tasa de recuperación de cartera:** porcentaje de la deuda morosa efectivamente recuperada en un período determinado. **Meta: 95% del saldo total recuperado, medida por cliente** (no solo como promedio agregado de toda la cartera — cada cliente debe acercarse a ese 95% de su propio saldo).
 - **Reducción de días promedio de mora:** tiempo promedio que tardan los clientes en pagar después del vencimiento.
 - **% de cartera vencida sobre cartera total:** disminución de la proporción de deuda en mora respecto a la cartera total.
 
-**Nota:** el negocio aún no ha definido metas numéricas específicas para estos KPIs (por ejemplo, "reducir la cartera vencida en X% en Y meses"). Se recomienda establecer una línea base con los datos actuales apenas el sistema esté operativo, y definir metas cuantitativas en conjunto con el negocio durante las primeras semanas de uso.
+**Nota:** la tasa de recuperación ya tiene meta definida (95% por cliente, ver arriba). Los otros dos KPIs (días promedio de mora, % de cartera vencida) aún no tienen metas numéricas; se recomienda establecer una línea base con los datos actuales apenas el sistema esté operativo, y definirlas en conjunto con el negocio durante las primeras semanas de uso.
 
 ---
 
@@ -192,7 +194,7 @@ El proyecto se considerará exitoso en la medida en que, tras su implementación
 | RF-03 | El sistema debe calcular automáticamente el segmento de riesgo de morosidad de cada cliente según los criterios definidos en la sección 7. |
 | RF-04 | El sistema debe permitir configurar los umbrales de segmentación (días de atraso, rangos de monto) sin necesidad de modificar código. |
 | RF-05 | El sistema debe recomendar una acción de cobranza (recordatorio preventivo o negociación de plan de pago) para cada cliente, según su segmento. |
-| RF-06 | El sistema debe generar y enviar correos electrónicos automáticos vía Outlook/Microsoft 365 según la acción recomendada. |
+| RF-06 | El sistema debe generar y enviar correos electrónicos automáticos vía Resend según la acción recomendada. |
 | RF-07 | El sistema debe permitir definir y editar plantillas de correo por escenario. |
 | RF-08 | El sistema debe registrar el historial de gestiones (envíos, acciones, cambios de estado) por cliente. |
 | RF-09 | El sistema debe permitir registrar manualmente el resultado de gestiones no automatizadas (por ejemplo, llamadas telefónicas). |
@@ -207,7 +209,7 @@ El proyecto se considerará exitoso en la medida en que, tras su implementación
 | ID | Requisito |
 |---|---|
 | RNF-01 | El sistema debe poder procesar cargas semanales de datos sin degradación perceptible de rendimiento, para el volumen de cartera estimado (a validar, ver 6.1). |
-| RNF-02 | Los datos personales y financieros de los clientes deben almacenarse y transmitirse de forma segura (cifrado en tránsito para el envío de correos e integración con Microsoft 365; control de acceso a la base de datos). |
+| RNF-02 | Los datos personales y financieros de los clientes deben almacenarse y transmitirse de forma segura (cifrado en tránsito para el envío de correos e integración con Resend; control de acceso a la base de datos). |
 | RNF-03 | El sistema debe manejar de forma responsable datos personales de clientes, en línea con la normativa de protección de datos aplicable en la jurisdicción de operación de la empresa. |
 | RNF-04 | El sistema debe ser mantenible: reglas de segmentación y mapeo de acciones deben poder actualizarse por el negocio sin depender de un desarrollador para cada ajuste menor. |
 | RNF-05 | El sistema debe registrar logs de auditoría de los envíos automáticos de correo (qué se envió, a quién y cuándo) para trazabilidad. |
@@ -220,11 +222,11 @@ El proyecto se considerará exitoso en la medida en que, tras su implementación
 El negocio no tiene una preferencia de stack definida y delega esta decisión al equipo de desarrollo en Claude Code. Se propone la siguiente orientación, a validar/ajustar durante la implementación:
 
 - **Tipo de solución:** aplicación web ligera (backend + base de datos + frontend de dashboard), dado que se requiere una vista compartida persistente (dashboard) y automatización programada de envíos de correo, lo cual excede lo que un script local puede sostener de forma confiable.
-- **Backend:** framework ligero (por ejemplo, Python con FastAPI, o Node.js con Express), responsable de: ingestión de archivos, cálculo de segmentación, motor de reglas de acciones, integración con Microsoft Graph API/SMTP para envío de correos.
+- **Backend:** framework ligero (por ejemplo, Python con FastAPI, o Node.js con Express), responsable de: ingestión de archivos, cálculo de segmentación, motor de reglas de acciones, integración con la API de Resend para envío de correos.
 - **Base de datos:** base de datos relacional (por ejemplo, PostgreSQL o SQLite si el volumen es reducido) para almacenar clientes, historial de gestiones y configuración de reglas.
 - **Frontend/Dashboard:** interfaz web simple (por ejemplo, un framework ligero de UI o un dashboard basado en tablas y gráficos) que consuma los datos calculados por el backend.
 - **Procesamiento de cargas:** un proceso de importación (manual, disparado por el usuario al subir el archivo) que valide y transforme los Excel/CSV en los registros del sistema.
-- **Automatización de correos:** proceso programado (scheduler/cron interno de la aplicación) que evalúe diariamente qué clientes requieren una comunicación según su segmento y estado, y dispare el envío vía Microsoft Graph API o SMTP.
+- **Automatización de correos:** proceso programado (scheduler/cron interno de la aplicación) que evalúe diariamente qué clientes requieren una comunicación según su segmento y estado, y dispare el envío vía la API de Resend.
 
 Esta sección es una guía de partida, no una decisión cerrada: el equipo de desarrollo puede proponer alternativas siempre que se cumplan los requisitos funcionales y no funcionales anteriores.
 
@@ -234,7 +236,7 @@ Esta sección es una guía de partida, no una decisión cerrada: el equipo de de
 
 | Integración | Estado |
 |---|---|
-| Outlook / Microsoft 365 (envío de correos) | Requerida en v1 |
+| Resend (envío de correos) | Requerida en v1 |
 | ERP/TMS logístico | Fuera de alcance en v1 (carga de datos vía Excel/CSV) |
 | WhatsApp/SMS | Fuera de alcance en v1 |
 
@@ -244,8 +246,8 @@ Esta sección es una guía de partida, no una decisión cerrada: el equipo de de
 
 - Se asume un volumen de cartera pequeño a mediano; debe validarse con datos reales antes de finalizar decisiones de arquitectura (ver 6.1 y RNF-01).
 - No se cuenta con historial de pagos detallado; la segmentación se basa en el estado actual de la deuda, no en comportamiento histórico (ver 6.3).
-- No se han definido aún metas numéricas para los KPIs; se recomienda establecerlas tras contar con una línea base (ver sección 11).
-- La empresa cuenta con licenciamiento de Microsoft 365, necesario para la integración de envío de correos.
+- La tasa de recuperación de cartera tiene meta definida (95% del saldo por cliente); los otros dos KPIs aún no la tienen y se recomienda establecerla tras contar con una línea base (ver sección 11).
+- La empresa debe contar con una cuenta de Resend y un dominio propio verificado en Resend, necesario para la integración de envío de correos.
 - En v1 no habrá diferenciación de roles/permisos entre agentes y supervisores.
 
 ---
@@ -265,7 +267,7 @@ Esta sección es una guía de partida, no una decisión cerrada: el equipo de de
 ## 18. Roadmap propuesto
 
 ### Fase 1 (alcance de este PRD)
-Segmentación, motor de recomendación (recordatorio/negociación), automatización de correo vía Outlook, dashboard con KPIs, sin roles diferenciados.
+Segmentación, motor de recomendación (recordatorio/negociación), automatización de correo vía Resend, dashboard con KPIs, sin roles diferenciados.
 
 ### Fase 2 (mejoras futuras candidatas)
 - Incorporar historial de pagos para mejorar la precisión del modelo de riesgo.
@@ -274,7 +276,7 @@ Segmentación, motor de recomendación (recordatorio/negociación), automatizaci
 - Suspensión/restricción de servicio por mora, si el negocio lo decide.
 - Canales adicionales de comunicación (WhatsApp/SMS).
 - Integración directa con el ERP/TMS logístico (eliminar la carga manual de Excel/CSV).
-- Definición de metas numéricas para los KPIs y reportes comparativos período a período.
+- Definición de metas numéricas para los otros dos KPIs (días promedio de mora, % de cartera vencida) y reportes comparativos período a período.
 
 ---
 
@@ -282,7 +284,7 @@ Segmentación, motor de recomendación (recordatorio/negociación), automatizaci
 
 - Se puede importar un archivo Excel/CSV de clientes/facturación y el sistema calcula correctamente el segmento de riesgo de cada cliente según las reglas configuradas.
 - El sistema recomienda una acción (recordatorio o negociación) coherente con el segmento de cada cliente.
-- El sistema envía correos automáticos vía Outlook/Microsoft 365 para al menos los dos escenarios definidos, con registro de trazabilidad.
+- El sistema envía correos automáticos vía Resend para al menos los dos escenarios definidos, con registro de trazabilidad.
 - El dashboard muestra correctamente los tres KPIs definidos (tasa de recuperación, días promedio de mora, % de cartera vencida) calculados a partir de los datos cargados.
 - Es posible filtrar/ordenar la cartera por segmento, monto y días de atraso desde el dashboard.
 - Es posible deshabilitar el envío automático para un cliente o segmento específico.
