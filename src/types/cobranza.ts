@@ -26,12 +26,17 @@ export interface VariablesCorreo {
   nombreAgente?: string;
 }
 
-/** Plantilla de correo editable por escenario (RF-07). El contenido vive en `src/config`. */
+/**
+ * Plantilla de correo editable por escenario (RF-07). El contenido vive en
+ * la tabla `plantillas_correo` de Supabase, no en código — se lee con
+ * `obtenerPlantilla()` en `src/lib/correo`.
+ */
 export interface PlantillaCorreo {
-  id: EscenarioCobranza;
-  nivelRiesgo: NivelRiesgo;
+  id: string;
+  escenario: EscenarioCobranza;
   nombre: string;
-  descripcion: string;
+  descripcion: string | null;
   asunto: string;
   cuerpo: string;
+  activa: boolean;
 }
