@@ -7,17 +7,19 @@
 Sistema de gestión de cobranzas y recuperación de cartera para una empresa de
 servicios logísticos. Segmenta clientes por riesgo de morosidad, recomienda
 acciones de cobranza por escenario, automatiza el envío de correos vía
-Outlook/Microsoft 365 y expone un dashboard de seguimiento con KPIs.
+Resend y expone un dashboard de seguimiento con KPIs.
 
 El PRD completo (fuente de verdad de requisitos) está en
 [docs/master_plan.md](docs/master_plan.md). Léelo antes de implementar
 cualquier funcionalidad nueva — en caso de duda sobre una regla de negocio,
 el PRD manda sobre cualquier suposición.
 
-**Estado actual:** solo existe el andamiaje base (Next.js) y una landing page
-estática. Ninguna de las funcionalidades del PRD (carga de Excel/CSV, motor
-de segmentación, motor de recomendación, envío de correos, dashboard) está
-implementada todavía.
+**Estado actual:** andamiaje base (Next.js) y landing page estática, más los
+primeros bloques de negocio: tipos de dominio y plantillas de correo por
+escenario (`src/types`, `src/config`, `src/lib/correo`) y el cliente de
+Supabase (`src/lib/supabase.ts`). Todavía faltan: carga de Excel/CSV, motor
+de segmentación, motor de recomendación, envío real de correos vía Resend y
+el dashboard.
 
 ## Stack técnico
 
@@ -28,11 +30,14 @@ implementada todavía.
   esperado (cientos de clientes, ver PRD 6.1) no justifica un backend
   separado.
 - **Estilos:** Tailwind CSS v4.
-- **Base de datos:** por definir (SQLite vía Prisma como punto de partida,
-  con ruta de migración a PostgreSQL si el volumen real de cartera lo
-  requiere — ver PRD 6.1 y RNF-01). Aún no implementada.
-- **Envío de correo:** Microsoft Graph API (preferido sobre SMTP, ver PRD
-  sección 9) — pendiente de implementar.
+- **Base de datos:** [Supabase](https://supabase.com) (PostgreSQL gestionado). Cliente en
+  `src/lib/supabase.ts`: `supabase` (publishable key, uso general) y
+  `getSupabaseAdmin()` (secret key, solo en código de servidor). Usa las API
+  keys nuevas de Supabase (`sb_publishable_...` / `sb_secret_...`), no las
+  legacy `anon`/`service_role`.
+- **Envío de correo:** [Resend](https://resend.com) (ver PRD sección 9; decisión del
+  23 sep 2026, reemplaza la integración con Outlook/Microsoft 365 planteada
+  originalmente) — pendiente de implementar.
 - **Linting:** ESLint (config `eslint-config-next`).
 
 ## Comandos
