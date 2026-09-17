@@ -70,3 +70,15 @@ export interface SegmentoCliente {
   diasAtraso: number;
   saldoPendienteTotal: number;
 }
+
+/**
+ * Acción de cobranza recomendada para un cliente según su segmento (PRD
+ * sección 8). `escenario` es `null` cuando el cliente no tiene atraso (nada
+ * que cobrar). `requiereAtencionManual` marca los casos de riesgo crítico
+ * para que el agente los revise (sin escalamiento automático a legal/
+ * supervisor en v1, ver PRD 4.2).
+ */
+export interface RecomendacionAccion {
+  escenario: EscenarioCobranza | null;
+  requiereAtencionManual: boolean;
+}
