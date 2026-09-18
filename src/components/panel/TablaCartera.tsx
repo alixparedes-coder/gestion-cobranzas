@@ -1,43 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { FilaCarteraGeneral } from "@/lib/cartera/obtenerCarteraGeneral";
 import type { NivelRiesgo } from "@/types/cobranza";
-
-const ETIQUETA_RIESGO: Record<NivelRiesgo, string> = {
-  sin_riesgo: "Sin riesgo",
-  bajo: "Bajo",
-  medio: "Medio",
-  alto: "Alto",
-  critico: "Crítico",
-};
-
-const ESTILO_BADGE_RIESGO: Record<NivelRiesgo, string> = {
-  sin_riesgo: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-  bajo: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
-  medio: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400",
-  alto: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-400",
-  critico: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
-};
-
-const ETIQUETA_GESTION: Record<string, string> = {
-  correo_automatico: "Correo automático",
-  llamada_manual: "Llamada manual",
-  negociacion: "Negociación",
-  pago_registrado: "Pago registrado",
-  otro: "Otro",
-};
+import { ESTILO_BADGE_RIESGO, ETIQUETA_GESTION, ETIQUETA_RIESGO, formatearFecha, formatearMoneda } from "@/components/panel/estilosRiesgo";
 
 type ColumnaOrden = "nombre" | "saldoPendienteTotal" | "diasAtraso";
 type DireccionOrden = "asc" | "desc";
-
-function formatearMoneda(monto: number): string {
-  return monto.toLocaleString("es-EC", { style: "currency", currency: "USD" });
-}
-
-function formatearFecha(fechaIso: string): string {
-  return new Date(fechaIso).toLocaleDateString("es-EC", { year: "numeric", month: "short", day: "numeric" });
-}
 
 export default function TablaCartera({ filas }: { filas: FilaCarteraGeneral[] }) {
   const [filtroRiesgo, setFiltroRiesgo] = useState<NivelRiesgo | "todos">("todos");
@@ -141,7 +111,12 @@ export default function TablaCartera({ filas }: { filas: FilaCarteraGeneral[] })
                 }`}
               >
                 <td className="px-4 py-2 text-slate-900 dark:text-slate-50">
-                  {fila.nombre}
+                  <Link
+                    href={`/panel/clientes/${fila.clienteId}`}
+                    className="hover:underline hover:text-indigo-600 dark:hover:text-indigo-400"
+                  >
+                    {fila.nombre}
+                  </Link>
                   {fila.esAltoValor && (
                     <span className="ml-2 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400">
                       Alto valor
