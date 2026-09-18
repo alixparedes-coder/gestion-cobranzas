@@ -1,5 +1,6 @@
 import { crearClienteSupabaseServidor } from "@/lib/supabaseServidor";
 import { cerrarSesion } from "@/app/panel/actions";
+import NavPanel from "@/components/panel/NavPanel";
 
 export default async function LayoutPanel({ children }: LayoutProps<"/panel">) {
   const supabase = await crearClienteSupabaseServidor();
@@ -18,9 +19,12 @@ export default async function LayoutPanel({ children }: LayoutProps<"/panel">) {
   return (
     <div className="flex min-h-full flex-col">
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3 dark:border-slate-800 dark:bg-slate-950">
-        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-          Gestión de Cobranzas
-        </span>
+        <div className="flex items-center gap-6">
+          <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+            Gestión de Cobranzas
+          </span>
+          <NavPanel />
+        </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-600 dark:text-slate-400">{nombre}</span>
           <form action={cerrarSesion}>
