@@ -24,6 +24,18 @@ describe("calcularDiasAtraso", () => {
   it("cuenta los días de atraso cuando ya venció", () => {
     assert.equal(calcularDiasAtraso("2026-09-01", HOY), 14);
   });
+
+  it("regresión: sin pasar `hoy` (usa la fecha real), no se corre un día por huso horario", () => {
+    // Bug real encontrado probando en navegador: una factura vencida el
+    // 2026-08-01 mostraba 49 días de atraso el 2026-09-18 (debían ser 48) —
+    // por sacarle getters locales a un Date de fecha-only (parseado en UTC).
+    const hoyReal = new Date();
+    const haceDiez = new Date(
+      Date.UTC(hoyReal.getUTCFullYear(), hoyReal.getUTCMonth(), hoyReal.getUTCDate() - 10)
+    );
+    const fechaVencimiento = haceDiez.toISOString().slice(0, 10);
+    assert.equal(calcularDiasAtraso(fechaVencimiento), 10);
+  });
 });
 
 describe("calcularNivelRiesgoPorDias", () => {

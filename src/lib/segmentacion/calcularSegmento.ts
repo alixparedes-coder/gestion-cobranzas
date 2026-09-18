@@ -7,16 +7,18 @@ import {
 } from "@/config/segmentacion";
 import type { Cliente, Factura, NivelMonto, NivelRiesgo, SegmentoCliente } from "@/types/cobranza";
 
-/** Días transcurridos desde `fechaVencimiento` hasta `hoy` (0 si todavía no vence). */
+/**
+ * Días transcurridos desde `fechaVencimiento` hasta `hoy` (0 si todavía no
+ * vence). Todo se ancla a UTC a propósito: una fecha-only ISO ("2026-08-01")
+ * ya se parsea como medianoche UTC de ese día; si acá se le sacaran los
+ * componentes con getters locales (getFullYear/getMonth/getDate) en un huso
+ * negativo, se lee un día antes (bug real que esto corrige). Usar getUTC*
+ * en ambos lados evita ese corrimiento sin importar el huso del servidor.
+ */
 export function calcularDiasAtraso(fechaVencimiento: string, hoy: Date = new Date()): number {
-  const vencimiento = new Date(fechaVencimiento);
-  const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-  const inicioVencimiento = new Date(
-    vencimiento.getFullYear(),
-    vencimiento.getMonth(),
-    vencimiento.getDate()
-  );
-  const dias = Math.round((inicioHoy.getTime() - inicioVencimiento.getTime()) / 86_400_000);
+  const inicioVencimiento = new Date(fechaVencimiento).getTime();
+  const inicioHoy = Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), hoy.getUTCDate());
+  const dias = Math.round((inicioHoy - inicioVencimiento) / 86_400_000);
   return Math.max(dias, 0);
 }
 
