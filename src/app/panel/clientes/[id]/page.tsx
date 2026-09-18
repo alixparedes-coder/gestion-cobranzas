@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { obtenerDetalleCliente } from "@/lib/cartera/obtenerDetalleCliente";
+import { alternarEnvioAutomatico } from "@/app/panel/clientes/[id]/actions";
 import {
   ESTILO_BADGE_RIESGO,
   ETIQUETA_ESCENARIO,
@@ -40,6 +41,18 @@ export default async function PaginaDetalleCliente(props: PageProps<"/panel/clie
             </span>
           )}
         </div>
+
+        <form
+          action={alternarEnvioAutomatico.bind(null, cliente.id, cliente.envioAutomaticoHabilitado)}
+          className="mt-3"
+        >
+          <button
+            type="submit"
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-900"
+          >
+            {cliente.envioAutomaticoHabilitado ? "Deshabilitar envío automático" : "Habilitar envío automático"}
+          </button>
+        </form>
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

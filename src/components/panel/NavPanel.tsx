@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const ENLACES = [
   { href: "/panel", etiqueta: "Cartera" },
   { href: "/panel/kpis", etiqueta: "KPIs" },
+  { href: "/panel/importar", etiqueta: "Importar" },
 ];
 
 export default function NavPanel() {
